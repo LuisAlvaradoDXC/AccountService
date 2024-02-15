@@ -1,0 +1,57 @@
+spring:
+  application.name: AccountService
+  profiles.active: prod
+
+---
+spring:
+  application.name: AccountServiceDev
+  profiles: dev
+  sql.init.mode: always
+  datasource:
+    url: "jdbc:h2:mem:demodb"
+    driverClassName: org.h2.Driver
+    username: account_user
+    password: acc123
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+      generate-ddl: true
+    defer-datasource-initialization: true
+  h2:
+    console.enabled: true
+    console.path: /h2-ui
+
+server:
+  port: 9900
+
+
+---
+spring:
+  application.name: AccountServiceProd
+  profiles: prod
+  sql.init.mode: always
+  datasource:
+    url: jdbc:mysql://localhost:3306/accounts_db?useSSL=false&serverTimezone=UTC
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: account_user
+    password: acc123
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+    hibernate:
+      ddl-auto: create
+      generate-ddl: true
+    defer-datasource-initialization: true
+  h2:
+    console.enabled: true
+    console.path: /h2-ui
+
+server:
+  port: 9943
+  error:
+     include-message: always
+     include-binding-errors: never
+     include-stacktrace: on_param
+     include-exception: true

@@ -8,9 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
+
 @RequestMapping({"/cuentas", ""})
 public class AccountController {
     Logger logger = LoggerFactory.getLogger(AccountController.class);
@@ -23,7 +27,7 @@ public class AccountController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createAccount(@RequestBody Account account) {
+    public ResponseEntity<?> createAccount(@RequestBody @Valid Account account) {
         return new ResponseEntity<>(accountService.create(account), HttpStatus.CREATED);
     }
 
@@ -34,7 +38,7 @@ public class AccountController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAccount(@PathVariable Long id, @RequestBody Account account) {
+    public ResponseEntity<?> updateAccount(@PathVariable Long id, @RequestBody @Valid Account account) {
         return new ResponseEntity<>(accountService.updateAccount(id, account), HttpStatus.ACCEPTED);
     }
 

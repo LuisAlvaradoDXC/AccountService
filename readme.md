@@ -39,3 +39,10 @@
 ### Reto 3.2 - Crea el servicio Accounts
     • Implementa los endpoints de la API
     • Añade las validaciones de los datos
+
+
+### Reto 3.3 - Habilita el servicio Accounts
+    • Añade documentación swagger al servicio.
+    • Añade CORS para localhost.
+    • Habilita HTTPS.
+    • Bonus: Habilita HATEOAS para cuentas

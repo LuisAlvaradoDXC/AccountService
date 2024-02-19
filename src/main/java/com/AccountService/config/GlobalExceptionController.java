@@ -22,8 +22,8 @@ import java.util.Map;
 public class GlobalExceptionController {
 
     @ExceptionHandler(AccountNotfoundException.class)
-    ResponseEntity<Object> noSuchElementExceptionHandler(AccountNotfoundException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!! El id introducido no existe");
+    ResponseEntity<Object> accountNotfoundExceptionHandler(AccountNotfoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)

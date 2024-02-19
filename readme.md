@@ -7,7 +7,7 @@
 
 ## Diseño de la API
 
-    El proyecto ha sido diseñado y planteado en Figma, se puede ver aquí:
+    La Api ha sido definida en Figma, se puede ver aquí:
 
     https://www.figma.com/file/wLLSFEKoRy2sAO287TOgEP/Untitled?type=whiteboard&node-id=0%3A1&t=tYWV1kxgXl38bemu-1
 

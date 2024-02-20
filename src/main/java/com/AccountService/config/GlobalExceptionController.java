@@ -1,6 +1,7 @@
 package com.AccountService.config;
 
 import com.AccountService.exception.AccountNotfoundException;
+import com.AccountService.exception.OwnerIdNotFoundException;
 import org.hibernate.procedure.ParameterStrategyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,10 @@ public class GlobalExceptionController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!! El id introducido no existe");
     }
 
+    @ExceptionHandler(OwnerIdNotFoundException.class)
+    ResponseEntity<Object> noSuchOwnerExceptionHandler(OwnerIdNotFoundException exception){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     Map<String, String> methodArgumentNotValidException(MethodArgumentNotValidException ex) {

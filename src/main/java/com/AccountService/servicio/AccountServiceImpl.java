@@ -1,6 +1,7 @@
 package com.AccountService.servicio;
 
 import com.AccountService.exception.AccountNotfoundException;
+import com.AccountService.exception.OwnerIdNotFoundException;
 import com.AccountService.model.Account;
 import com.AccountService.model.Customer;
 import com.AccountService.persistence.AccountRepository;
@@ -78,9 +79,13 @@ public class AccountServiceImpl implements IAccountService {
 
     @Override
     public void deleteAccountsUsingOwnerId(Long ownerId) {
-        List<Account> accounts = accountRepository.findByOwnerId(ownerId);
-        for (Account account : accounts) {
-            this.accountRepository.delete(account);
+        if (ownerId < 0) {
+            throw new OwnerIdNotFoundException();
+        } else {
+            List<Account> accounts = accountRepository.findByOwnerId(ownerId);
+            for (Account account : accounts) {
+                this.accountRepository.delete(account);
+            }
         }
     }
 }

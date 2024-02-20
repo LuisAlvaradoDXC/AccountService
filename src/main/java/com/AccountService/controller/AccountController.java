@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @RestController
@@ -77,9 +78,9 @@ public class AccountController {
             @ApiResponse(responseCode = "404", description = "Cuando no se ha encontrado la cuenta."),
             @ApiResponse(responseCode = "400", description = "los datos introducidos no son validos")
     })
-    public ResponseEntity<?> addBalance(@PathVariable @NotBlank @Parameter(name = "idAccount", description = "Indica el id de la cuenta", example = "1,2,3,4") Long idAccount,
-                                        @NotBlank @Min(0) @PathVariable @Parameter(name = "amount", description = "Indica una cantidad a sumar", example = "100,500,4000") int amount,
-                                        @NotBlank @PathVariable @Parameter(name = "ownerId", description = "Indica un ID perteneciente al propietario de la cuenta", example = "1,2,3,4") Long ownerId) {
+    public ResponseEntity<?> addBalance(@PathVariable @NotNull @Parameter(name = "idAccount", description = "Indica el id de la cuenta", example = "1,2,3,4") Long idAccount,
+                                        @NotNull @Min(0) @PathVariable @Parameter(name = "amount", description = "Indica una cantidad a sumar", example = "100,500,4000") int amount,
+                                        @NotNull @PathVariable @Parameter(name = "ownerId", description = "Indica un ID perteneciente al propietario de la cuenta", example = "1,2,3,4") Long ownerId) {
         return new ResponseEntity<>(accountService.addBalance(idAccount, amount, ownerId), HttpStatus.ACCEPTED);
     }
 

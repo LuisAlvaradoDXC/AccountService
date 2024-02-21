@@ -1,5 +1,6 @@
 package com.AccountService.controller;
 
+import com.AccountService.exception.OwnerIdNotFoundException;
 import com.AccountService.model.Account;
 import com.AccountService.persistence.AccountRepository;
 import com.AccountService.servicio.AccountServiceImpl;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -26,75 +28,72 @@ import javax.persistence.EntityManagerFactory;
 import java.util.Date;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @ExtendWith(SpringExtension.class)
-@AutoConfigureMockMvc
+//@AutoConfigureMockMvc
 public class AccountServiceIntegrationTest {
 
     @TestConfiguration
-    static class AccountServiceIntegrationTestConfiguration {
-
-        @Bean
-        public IAccountService accountService() {
-            return new AccountServiceImpl();
-        }
+    static class AccountControllerTestContextConfiguration {
 
         @Bean
         public AccountController accountController() {
             return new AccountController();
         }
-
     }
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    private IAccountService accountService;
 
     @Autowired
     private AccountController accountController;
 
     @MockBean
-    private AccountRepository accountRepository;
+    private IAccountService accountService;
 
-    @MockBean
-    private EntityManager entityManager;
-
-    @MockBean
-    private EntityManagerFactory entityManagerFactory;
 
     @BeforeEach
-    public void setUp() {
-        Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
+    public void setup() {
+        when(accountService.addBalance(anyLong(), anyInt(), anyLong()))
+                .thenAnswer(invocation -> {
+                    // Simular el comportamiento del servicio
+                    Long id = invocation.getArgument(0);
+                    int amount = invocation.getArgument(1);
+                    Long ownerId = invocation.getArgument(2);
 
-        Account cuenta = new Account(1L, "fake-account", new Date(), 200, 1L, null);
-        Mockito.when(accountRepository.findById(1L))
-                .thenReturn(Optional.of(cuenta));
-
-        Mockito.when(accountService.addBalance(1L, 200, 1L))
-                .thenReturn(cuenta);
+                    Account account = new Account(id, "TestAccount", new Date(), 100, ownerId, null);
+                    int newBalance = account.getBalance() + amount;
+                    account.setBalance(newBalance);
+                    return account;
+                });
+        doThrow(OwnerIdNotFoundException.class).when(accountService).deleteAccountsUsingOwnerId(25L);
     }
-
 
     @Test
     void givenValidBalance_returnsValidStatus() throws Exception {
-        Long idAccount = 1L;
-        int amount = 100;
+        Long accountId = 1L;
+        int amount = 50;
         Long ownerId = 1L;
 
-        mockMvc.perform(put("/cuentas/addMoney/{idAccount}/{amount}/{ownerId}", idAccount, amount, ownerId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isAccepted())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        ResponseEntity<?> result = accountController.addBalance(accountId, amount, ownerId);
+
+        assertEquals(HttpStatus.ACCEPTED, result.getStatusCode());
     }
 
     @Test
     void givenValidBalance_returnsNotValidStatus() throws Exception {
+        Long accountId = 1L;
+        int amount = -50;
+        Long ownerId = 1L;
 
+        ResponseEntity<?> result = accountController.addBalance(accountId, amount, ownerId);
+
+        assertEquals(HttpStatus.PRECONDITION_FAILED, result.getStatusCode());
     }
 
     @Test

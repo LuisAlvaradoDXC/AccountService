@@ -20,8 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// WebEnviroments configura nuestro entorno en tiempo de ejecucion y el .MOCK simulara el entorno de servlet
-//habilita la configuracion de MockMVC
+/*Este test no mockea el service ni el repositorio*/
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 class AccountServiceControllerTest_MockMVC {

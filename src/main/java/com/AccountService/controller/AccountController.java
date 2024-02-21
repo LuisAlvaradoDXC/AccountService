@@ -23,26 +23,32 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @RestController
-@RequestMapping({"/cuentas", ""})
+@RequestMapping({"/cuentas"})
 @Tag(name = "Accounts API", description = "Accounts management APIs")
 @Validated
 public class AccountController {
-    Logger logger = LoggerFactory.getLogger(AccountController.class);
+
+    //////
+
+    private final Logger logger = LoggerFactory.getLogger(AccountController.class);
+
     @Autowired
     private IAccountService accountService;
 
-    @GetMapping("")
+    //////
+
+    @GetMapping(value = "")
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(accountService.getAccounts(), HttpStatus.OK);
     }
 
-    @PostMapping("/create")
-    @Operation(summary = "Para crear una cuenta nueva", description = "Agrega una cuenta al repositorio de datos recibiendo los parametro typo,balance y ownerID, la fecha y el ID se colocaran automaticamente")
+    @PostMapping(value = "/create")
+    @Operation(summary = "Para crear una cuenta nueva", description = "Agrega una cuenta al repositorio de datos recibiendo los parámetro typo,balance y ownerID, la fecha y el ID se colocaran automáticamente")
     public ResponseEntity<?> createAccount(@RequestBody @Valid Account account) {
         return new ResponseEntity<>(accountService.create(account), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}")
     @Operation(summary = "Para solicitar una cuenta mediante su 'ID'", description = "Mediante el el ID de la cuenta recurrirá a un service, el cual recupera la 'cuenta' de un repositorio")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cuando hay cuentas a devolver."),
@@ -53,25 +59,25 @@ public class AccountController {
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}")
     public ResponseEntity<?> updateAccount(@PathVariable Long id, @RequestBody @Valid Account account) {
         return new ResponseEntity<>(accountService.updateAccount(id, account), HttpStatus.ACCEPTED);
     }
 
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteAccount(@PathVariable Long id) {
         accountService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/owner/{ownerId}")
+    @DeleteMapping(value = "/owner/{ownerId}")
     public ResponseEntity<?> deleteAccountByOwnerId(@PathVariable("ownerId") Long id) {
         accountService.deleteAccountsUsingOwnerId(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/addMoney/{idAccount}/{amount}/{ownerId}")
+    @PutMapping(value = "/addMoney/{idAccount}/{amount}/{ownerId}")
     @Operation(summary = "Para agregar balance a una cuenta ", description = "el servicio sumara la cantidad recogida en el controlador a la cantidad consultada del repositorio")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "Cuando se ha agregado dinero correctamente"),
@@ -84,7 +90,7 @@ public class AccountController {
         return new ResponseEntity<>(accountService.addBalance(idAccount, amount, ownerId), HttpStatus.ACCEPTED);
     }
 
-    @PutMapping("/withdrawMoney/{idAccount}/{amount}/{ownerId}")
+    @PutMapping(value = "/withdrawMoney/{idAccount}/{amount}/{ownerId}")
     public ResponseEntity<?> withdrawMoney(@PathVariable Long idAccount, @PathVariable int amount, @PathVariable Long ownerId) {
         return new ResponseEntity<>(accountService.withdrawBalance(idAccount, amount, ownerId), HttpStatus.ACCEPTED);
     }

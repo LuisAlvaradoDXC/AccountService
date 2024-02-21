@@ -88,7 +88,7 @@ public class AccountServiceControllerTest_TestRestTemplate {
     }
 
     @Test
-    void givenNotValidOwnerId_deleteAccountSuccessfull() throws Exception {
+    void givenNotValidOwnerId_deleteAccountSuccessFull() throws Exception {
 
         long ownerId = -1L;
 

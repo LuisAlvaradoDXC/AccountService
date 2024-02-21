@@ -38,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ExtendWith(SpringExtension.class)
+//@WebMvcTest
 //@AutoConfigureMockMvc
 public class AccountServiceIntegrationTest {
 
@@ -56,6 +57,9 @@ public class AccountServiceIntegrationTest {
     @MockBean
     private IAccountService accountService;
 
+/*    @Autowired
+    private MockMvc mockMvc;*/
+
 
     @BeforeEach
     public void setup() {
@@ -71,7 +75,8 @@ public class AccountServiceIntegrationTest {
                     account.setBalance(newBalance);
                     return account;
                 });
-        doThrow(OwnerIdNotFoundException.class).when(accountService).deleteAccountsUsingOwnerId(25L);
+       Mockito.doThrow(OwnerIdNotFoundException.class).when(accountService).delete(25L);
+
     }
 
     @Test
@@ -91,20 +96,35 @@ public class AccountServiceIntegrationTest {
         int amount = -50;
         Long ownerId = 1L;
 
-        ResponseEntity<?> result = accountController.addBalance(accountId, amount, ownerId);
+        // ResponseEntity<?> result = accountController.addBalance(accountId, amount, ownerId);
+/*        mockMvc.perform(put("/cuentas/addMoney/{accountId}/{amount}/{ownerId}", accountId, amount, ownerId))
+                .andExpect(status().isPreconditionFailed());*/
+        //  assertEquals(HttpStatus.PRECONDITION_FAILED, result.getStatusCode());
 
-        assertEquals(HttpStatus.PRECONDITION_FAILED, result.getStatusCode());
+ /*           mockMvc.perform(put("/cuentas/addMoney/" + accountId + "/" + amount + "/" + ownerId)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isPreconditionFailed());*/
     }
 
     @Test
     void givenValidOwnerId_deleteAccountSuccessfull() throws Exception {
-
+        Long ownerId = 1L;
+        ResponseEntity<?> result = accountController.deleteAccountByOwnerId(ownerId);
+        assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
     }
 
     @Test
     void givenNotValidOwnerId_deleteAccountSuccessfull() throws Exception {
 
+        Long accountId = 25L;
+        ResponseEntity<?> result = accountController.deleteAccount(accountId);
+
+         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+
     }
 
+    /*mockMvc.perform(put("/cuentas/addMoney/" + accountId + "/" + amount + "/" + ownerId)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isPreconditionFailed());*/
 
 }

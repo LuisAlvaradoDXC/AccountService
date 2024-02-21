@@ -16,10 +16,14 @@ import java.util.List;
 @Service
 public class AccountServiceImpl implements IAccountService {
 
-    private Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
+    //////
+
+    private final Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
 
     @Autowired
     private AccountRepository accountRepository;
+
+    //////
 
     @Override
     public Account create(Account account) {
@@ -30,7 +34,9 @@ public class AccountServiceImpl implements IAccountService {
 
     @Override
     public List<Account> getAccounts() {
-        return accountRepository.findAll();
+        List<Account> listAccounts = accountRepository.findAll();
+        if (listAccounts.isEmpty()) throw new AccountNotfoundException();
+        else return accountRepository.findAll();
     }
 
     @Override

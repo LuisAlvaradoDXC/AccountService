@@ -1,5 +1,6 @@
 package com.AccountService.controller;
 
+import com.AccountService.exception.OwnerIdNotFoundException;
 import com.AccountService.model.Account;
 import com.AccountService.persistence.AccountRepository;
 import com.AccountService.servicio.AccountServiceImpl;
@@ -11,83 +12,99 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.Banner;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.util.Date;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@ExtendWith(SpringExtension.class)
+//@AutoConfigureMockMvc
 public class AccountServiceIntegrationTest {
 
-    //////
+    @TestConfiguration
+    static class AccountControllerTestContextConfiguration {
+
+        @Bean
+        public AccountController accountController() {
+            return new AccountController();
+        }
+    }
 
     @Autowired
-    private MockMvc mockMvc;
+    private AccountController accountController;
 
     @MockBean
-    private AccountServiceImpl accountService;
+    private IAccountService accountService;
 
-    //////
+
+    @BeforeEach
+    public void setup() {
+        when(accountService.addBalance(anyLong(), anyInt(), anyLong()))
+                .thenAnswer(invocation -> {
+                    // Simular el comportamiento del servicio
+                    Long id = invocation.getArgument(0);
+                    int amount = invocation.getArgument(1);
+                    Long ownerId = invocation.getArgument(2);
+
+                    Account account = new Account(id, "TestAccount", new Date(), 100, ownerId, null);
+                    int newBalance = account.getBalance() + amount;
+                    account.setBalance(newBalance);
+                    return account;
+                });
+        doThrow(OwnerIdNotFoundException.class).when(accountService).deleteAccountsUsingOwnerId(25L);
+    }
 
     @Test
     void givenValidBalance_returnsValidStatus() throws Exception {
+        Long accountId = 1L;
+        int amount = 50;
+        Long ownerId = 1L;
 
-        long idAccount = 1L;
-        int amount = 500;
-        long ownerId = 1L;
-        String endPoint = "/cuentas/addMoney/" + idAccount + "/" + amount + "/" + ownerId;
+        ResponseEntity<?> result = accountController.addBalance(accountId, amount, ownerId);
 
-        Mockito.when( accountService.addBalance(idAccount, amount, ownerId) ).thenReturn(new Account());
-        mockMvc.perform( MockMvcRequestBuilders.put(endPoint) ).andExpect( status().isAccepted() );
-
+        assertEquals(HttpStatus.ACCEPTED, result.getStatusCode());
     }
 
     @Test
     void givenValidBalance_returnsNotValidStatus() throws Exception {
+        Long accountId = 1L;
+        int amount = -50;
+        Long ownerId = 1L;
 
-        long idAccount = 1L;
-        int amount = -500;
-        long ownerId = 1L;
-        String endPoint = "/cuentas/addMoney/" + idAccount + "/" + amount + "/" + ownerId;
+        ResponseEntity<?> result = accountController.addBalance(accountId, amount, ownerId);
 
-        Mockito.when( accountService.addBalance(idAccount, amount, ownerId) ).thenReturn(new Account());
-        mockMvc.perform( MockMvcRequestBuilders.put(endPoint) ).andExpect( status().isPreconditionFailed() );
+        assertEquals(HttpStatus.PRECONDITION_FAILED, result.getStatusCode());
+    }
+
+    @Test
+    void givenValidOwnerId_deleteAccountSuccessfull() throws Exception {
 
     }
 
     @Test
-    void givenValidOwnerId_deleteAccountSuccessFull() throws Exception {
-
-        long ownerId = 1L;
-        String endPoint = "";
-
-        //mockMvc.perform(  )
+    void givenNotValidOwnerId_deleteAccountSuccessfull() throws Exception {
 
     }
 
-    @Test
-    void givenNotValidOwnerId_deleteAccountSuccessFull() throws Exception {
-
-    }
-
-    //////
 
 }

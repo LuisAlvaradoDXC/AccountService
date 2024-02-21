@@ -11,8 +11,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.Banner;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -30,82 +33,61 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @AutoConfigureMockMvc
 public class AccountServiceIntegrationTest {
 
-    @TestConfiguration
-    static class AccountServiceIntegrationTestConfiguration {
-
-        @Bean
-        public IAccountService accountService() {
-            return new AccountServiceImpl();
-        }
-
-        @Bean
-        public AccountController accountController() {
-            return new AccountController();
-        }
-
-    }
+    //////
 
     @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    private IAccountService accountService;
-
-    @Autowired
-    private AccountController accountController;
+    private MockMvc mockMvc;
 
     @MockBean
-    private AccountRepository accountRepository;
+    private AccountServiceImpl accountService;
 
-    @MockBean
-    private EntityManager entityManager;
-
-    @MockBean
-    private EntityManagerFactory entityManagerFactory;
-
-    @BeforeEach
-    public void setUp() {
-        Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
-
-        Account cuenta = new Account(1L, "fake-account", new Date(), 200, 1L, null);
-        Mockito.when(accountRepository.findById(1L))
-                .thenReturn(Optional.of(cuenta));
-
-        Mockito.when(accountService.addBalance(1L, 200, 1L))
-                .thenReturn(cuenta);
-    }
-
+    //////
 
     @Test
     void givenValidBalance_returnsValidStatus() throws Exception {
-        Long idAccount = 1L;
-        int amount = 100;
-        Long ownerId = 1L;
 
-        mockMvc.perform(put("/cuentas/addMoney/{idAccount}/{amount}/{ownerId}", idAccount, amount, ownerId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isAccepted())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        long idAccount = 1L;
+        int amount = 500;
+        long ownerId = 1L;
+        String endPoint = "/cuentas/addMoney/" + idAccount + "/" + amount + "/" + ownerId;
+
+        Mockito.when( accountService.addBalance(idAccount, amount, ownerId) ).thenReturn(new Account());
+        mockMvc.perform( MockMvcRequestBuilders.put(endPoint) ).andExpect( status().isAccepted() );
+
     }
 
     @Test
     void givenValidBalance_returnsNotValidStatus() throws Exception {
 
+        long idAccount = 1L;
+        int amount = -500;
+        long ownerId = 1L;
+        String endPoint = "/cuentas/addMoney/" + idAccount + "/" + amount + "/" + ownerId;
+
+        Mockito.when( accountService.addBalance(idAccount, amount, ownerId) ).thenReturn(new Account());
+        mockMvc.perform( MockMvcRequestBuilders.put(endPoint) ).andExpect( status().isPreconditionFailed() );
+
     }
 
     @Test
-    void givenValidOwnerId_deleteAccountSuccessfull() throws Exception {
+    void givenValidOwnerId_deleteAccountSuccessFull() throws Exception {
+
+        long ownerId = 1L;
+        String endPoint = "";
+
+        //mockMvc.perform(  )
 
     }
 
     @Test
-    void givenNotValidOwnerId_deleteAccountSuccessfull() throws Exception {
+    void givenNotValidOwnerId_deleteAccountSuccessFull() throws Exception {
 
     }
 
+    //////
 
 }

@@ -69,7 +69,7 @@ class AccountServiceControllerTest_MockMVC {
                 .andExpect(status().isNoContent());
     }
 
-        @Test
+    @Test
     void givenNotValidOwnerId_deleteAccountSuccessfull() throws Exception {
         Long ownerId = -1L;
 

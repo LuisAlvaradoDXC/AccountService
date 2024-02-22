@@ -76,7 +76,7 @@ public class AccountServiceIntegrationTest {
                     account.setBalance(newBalance);
                     return account;
                 });
-        doThrow(OwnerIdNotFoundException.class).when(accountService).deleteAccountsUsingOwnerId(25L);
+        doThrow(OwnerIdNotFoundException.class).when(accountService).delete(25L);
     }
 
     @Test
